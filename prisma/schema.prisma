@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String?
+  password  String
+  createdAt DateTime  @default(now())
+  Order     Order[]
+  deletedAt DateTime?
+}
+
+model Category {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  code    String    @unique
+  Product Product[]
+}
+
+model Product {
+  id                    Int         @id @default(autoincrement())
+  name                  String
+  code                  String      @unique
+  category              Category    @relation(fields: [categoryId], references: [id])
+  categoryId            Int
+  OrderItem             OrderItem[]
+  price                 Float
+  Inventory             Inventory[]
+  image                 String?
+  lowExistenceThreshold Int         @default(0)
+}
+
+model Client {
+  id             Int     @id @default(autoincrement())
+  fullname       String
+  phone          String
+  identification String
+  address        String?
+  Order          Order[]
+}
+
+model Order {
+  id              Int           @id @default(autoincrement())
+  client          Client        @relation(fields: [clientId], references: [id])
+  clientId        Int
+  createdAt       DateTime      @default(now())
+  OrderItem       OrderItem[]
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId Int
+  user            User          @relation(fields: [userId], references: [id])
+  userId          Int
+  deletedAt       DateTime?
+  exchangeRate    ExchangeRate  @relation(fields: [exchangeRateId], references: [id])
+  exchangeRateId  Int
+}
+
+model Inventory {
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  quantity  Int
+}
+
+model PaymentMethod {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  Order Order[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+  orderId   Int
+  productId Int
+  quantity  Int
+}
+
+model ExchangeRate {
+  id        Int      @id @default(autoincrement())
+  rate      Float
+  createdAt DateTime @default(now())
+  Order     Order[]
+}
