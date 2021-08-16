@@ -68,7 +68,7 @@ model Inventory {
   id        Int     @id @default(autoincrement())
   product   Product @relation(fields: [productId], references: [id])
   productId Int
-  quantity  Int
+  quantity  Int     @default(0)
 }
 
 model PaymentMethod {
